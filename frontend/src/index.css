@@ -94,3 +94,105 @@ a {
 ::selection {
   background: rgba(155, 135, 245, 0.3);
 }
+
+.premium-card {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+
+  position: relative;
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-radius: 22px;
+
+  background: var(--surface-soft);
+
+  isolation: isolate;
+
+  transition:
+    border-color 250ms ease,
+    background-color 250ms ease,
+    box-shadow 250ms ease;
+}
+
+.premium-card:hover {
+  border-color: var(--border-hover);
+
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.premium-card__content {
+  position: relative;
+  z-index: 2;
+}
+
+.premium-card__spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  pointer-events: none;
+
+  opacity: 0;
+
+  background:
+    radial-gradient(
+      360px circle at var(--mouse-x) var(--mouse-y),
+      rgba(167, 139, 250, 0.08),
+      transparent 55%
+    );
+
+  transition: opacity 300ms ease;
+}
+
+.premium-card:hover .premium-card__spotlight {
+  opacity: 1;
+}
+
+.premium-card--accent {
+  border-color: transparent;
+
+  background:
+    linear-gradient(
+        var(--surface),
+        var(--surface)
+      )
+      padding-box,
+    linear-gradient(
+        125deg,
+        rgba(124, 92, 246, 0.55),
+        rgba(71, 195, 191, 0.28),
+        rgba(244, 183, 64, 0.22),
+        rgba(219, 102, 191, 0.38)
+      )
+      border-box;
+}
+
+.premium-card--accent::after {
+  content: '';
+
+  position: absolute;
+  inset: -45%;
+
+  z-index: -1;
+
+  background:
+    conic-gradient(
+      from 90deg,
+      transparent,
+      rgba(124, 92, 246, 0.09),
+      transparent,
+      rgba(72, 190, 184, 0.06),
+      transparent
+    );
+
+  animation: premium-edge-drift 16s linear infinite;
+}
+
+@keyframes premium-edge-drift {
+  to {
+    transform: rotate(360deg);
+  }
+}
