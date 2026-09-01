@@ -16,5 +16,21 @@ export interface RegisterRequest {
 }
 
 export interface LoginResponse {
+  message: string;
   accessToken: string;
+  user: User;
+}
+
+export interface UpdateProfileRequest {
+  fullName: string;
+  username: string;
+}
+
+export interface UpdatePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface UpdatePasswordResponse {
+  message: string;
 }
