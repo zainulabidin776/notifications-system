@@ -12,7 +12,9 @@ import type { StringValue } from 'ms';
   imports: [
     UsersModule,
     ConfigModule,
-    PassportModule,
+    PassportModule.register({
+  defaultStrategy: 'jwt',
+}),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
