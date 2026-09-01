@@ -6,13 +6,19 @@ import './index.css';
 
 import App from './App';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationsProvider } from './context/NotificationsProvider';
+import { ThemeProvider } from './context/ThemeProvider';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
+     <ThemeProvider>
       <AuthProvider>
-        <App />
+        <NotificationsProvider>
+           <App />
+        </NotificationsProvider>
       </AuthProvider>
+       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,
 );

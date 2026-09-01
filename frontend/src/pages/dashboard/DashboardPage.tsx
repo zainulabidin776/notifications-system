@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
   BellRing,
   CircleAlert,
@@ -9,34 +9,21 @@ import {
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-import { notificationsApi } from '../../api/notifications.api';
 import { AppLayout } from '../../components/layout/AppLayout';
 import { NotificationPreview } from '../../components/notifications/NotificationPreview';
 import { PremiumCard } from '../../components/ui/PremiumCard';
 import { StatCard } from '../../components/ui/StatCard';
 import { useAuth } from '../../context/useAuth';
-import type { Notification } from '../../types/notification';
+import { useNotifications } from '../../context/useNotifications';
 
 export function DashboardPage() {
   const { user } = useAuth();
 
-  const [notifications, setNotifications] =
-    useState<Notification[]>([]);
-
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadNotifications = async () => {
-      try {
-        const data = await notificationsApi.getAll();
-        setNotifications(data);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    void loadNotifications();
-  }, []);
+  const {
+    notifications,
+    isLoading,
+    error,
+  } = useNotifications();
 
   const stats = useMemo(() => {
     return {
@@ -68,25 +55,42 @@ export function DashboardPage() {
       ? (stats.errors / stats.total) * 100
       : 0;
 
+  const firstName =
+    user?.fullName?.split(' ')[0] ?? 'there';
+
   return (
     <AppLayout>
       <div className="mx-auto max-w-[1500px]">
-        {/* Header */}
+        {/* Page heading */}
         <section className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
             <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-violet-300 uppercase"
+              initial={{
+                opacity: 0,
+                y: 6,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                duration: 0.35,
+              }}
+              className="mb-3 flex items-center gap-2 text-xs font-semibold tracking-[0.16em] text-violet-400 uppercase"
             >
               <Sparkles className="h-3.5 w-3.5" />
               Your workspace
             </motion.div>
 
             <motion.h1
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{
+                opacity: 0,
+                y: 8,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
               transition={{
                 duration: 0.4,
                 delay: 0.05,
@@ -96,37 +100,50 @@ export function DashboardPage() {
               Good to see you,
               <span className="text-[var(--text-secondary)]">
                 {' '}
-                {user?.fullName?.split(' ')[0]}
+                {firstName}
               </span>
             </motion.h1>
 
             <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{
+                opacity: 0,
+              }}
+              animate={{
+                opacity: 1,
+              }}
               transition={{
                 duration: 0.4,
                 delay: 0.12,
               }}
               className="mt-3 max-w-xl text-sm leading-6 text-[var(--text-muted)]"
             >
-              Here&apos;s a focused view of everything
-              that needs your attention.
+              A focused view of everything that needs
+              your attention right now.
             </motion.p>
           </div>
 
           <motion.div
-            initial={{ opacity: 0, x: 10 }}
-            animate={{ opacity: 1, x: 0 }}
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.98 }}
+            initial={{
+              opacity: 0,
+              x: 10,
+            }}
+            animate={{
+              opacity: 1,
+              x: 0,
+            }}
+            whileHover={{
+              y: -2,
+            }}
+            whileTap={{
+              scale: 0.98,
+            }}
             transition={{
               duration: 0.3,
-              delay: 0.1,
             }}
           >
             <Link
               to="/notifications/new"
-              className="group flex h-11 items-center justify-center gap-2 rounded-xl border border-violet-400/20 bg-violet-400/[0.09] px-4 text-sm font-medium text-violet-100 shadow-[0_10px_35px_rgba(124,92,246,0.08)] transition-all duration-200 hover:border-violet-400/35 hover:bg-violet-400/[0.14]"
+              className="group flex h-11 items-center justify-center gap-2 rounded-xl border border-violet-400/25 bg-violet-500/[0.1] px-4 text-sm font-medium text-violet-300 shadow-[0_12px_36px_rgba(124,92,246,0.08)] transition-all duration-200 hover:border-violet-400/40 hover:bg-violet-500/[0.15]"
             >
               <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
 
@@ -135,10 +152,33 @@ export function DashboardPage() {
           </motion.div>
         </section>
 
-        {/* Stats */}
+        {/* Global error */}
+        {error && (
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: -6,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            className="mt-6 rounded-xl border border-red-400/20 bg-red-400/[0.06] px-4 py-3 text-sm text-red-400"
+          >
+            {error}
+          </motion.div>
+        )}
+
+        {/* Statistics */}
         <motion.section
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{
+            opacity: 0,
+            y: 14,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
           transition={{
             duration: 0.4,
             delay: 0.12,
@@ -148,7 +188,7 @@ export function DashboardPage() {
           <StatCard
             label="Total notifications"
             value={stats.total}
-            helper="All activity in your workspace"
+            helper="All workspace activity"
             icon={BellRing}
           />
 
@@ -177,7 +217,7 @@ export function DashboardPage() {
           />
         </motion.section>
 
-        {/* Main content */}
+        {/* Main dashboard */}
         <section className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
           {/* Recent notifications */}
           <PremiumCard className="min-h-[420px]">
@@ -194,7 +234,7 @@ export function DashboardPage() {
 
               <Link
                 to="/notifications"
-                className="text-xs font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
+                className="rounded-lg px-2 py-1 text-xs font-medium text-[var(--text-secondary)] transition-all hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
               >
                 View all
               </Link>
@@ -222,14 +262,20 @@ export function DashboardPage() {
               ) : (
                 <div className="flex min-h-[330px] flex-col items-center justify-center px-6 text-center">
                   <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
+                    initial={{
+                      opacity: 0,
+                      scale: 0.9,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                    }}
                     transition={{
                       type: 'spring',
                       stiffness: 250,
                       damping: 20,
                     }}
-                    className="flex h-14 w-14 items-center justify-center rounded-2xl border border-violet-400/10 bg-violet-400/[0.08] text-violet-300"
+                    className="flex h-14 w-14 items-center justify-center rounded-2xl border border-violet-400/15 bg-violet-400/[0.08] text-violet-400"
                   >
                     <BellRing className="h-5 w-5" />
                   </motion.div>
@@ -239,21 +285,28 @@ export function DashboardPage() {
                   </h3>
 
                   <p className="mt-2 max-w-xs text-xs leading-5 text-[var(--text-muted)]">
-                    Create your first notification to
-                    start building your workspace.
+                    Create your first notification and
+                    it will appear here instantly.
                   </p>
+
+                  <Link
+                    to="/notifications/new"
+                    className="mt-5 text-xs font-medium text-violet-400 transition hover:text-violet-300"
+                  >
+                    Create notification
+                  </Link>
                 </div>
               )}
             </div>
           </PremiumCard>
 
-          {/* Attention Overview */}
+          {/* Attention overview */}
           <PremiumCard
             accent
             className="min-h-[420px]"
           >
             <aside className="relative h-full overflow-hidden p-6">
-              <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-violet-500/10 blur-3xl" />
+              <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-violet-500/[0.08] blur-3xl" />
 
               <div className="relative">
                 <p className="text-xs font-semibold tracking-[0.14em] text-[var(--text-muted)] uppercase">
@@ -283,21 +336,23 @@ export function DashboardPage() {
                 </p>
 
                 <div className="mt-9 space-y-6">
-                  {/* Warnings */}
+                  {/* Warning progress */}
                   <div>
-                    <div className="mb-2.5 flex justify-between text-xs">
+                    <div className="mb-2.5 flex items-center justify-between text-xs">
                       <span className="text-[var(--text-secondary)]">
                         Warnings
                       </span>
 
-                      <span className="font-medium text-amber-300">
+                      <span className="font-medium text-amber-400">
                         {stats.warnings}
                       </span>
                     </div>
 
                     <div className="h-1.5 overflow-hidden rounded-full bg-[var(--surface-hover)]">
                       <motion.div
-                        initial={{ width: 0 }}
+                        initial={{
+                          width: 0,
+                        }}
                         animate={{
                           width: `${warningPercentage}%`,
                         }}
@@ -310,26 +365,28 @@ export function DashboardPage() {
                             1,
                           ],
                         }}
-                        className="h-full rounded-full bg-amber-300/75"
+                        className="h-full rounded-full bg-amber-400"
                       />
                     </div>
                   </div>
 
-                  {/* Errors */}
+                  {/* Error progress */}
                   <div>
-                    <div className="mb-2.5 flex justify-between text-xs">
+                    <div className="mb-2.5 flex items-center justify-between text-xs">
                       <span className="text-[var(--text-secondary)]">
                         Errors
                       </span>
 
-                      <span className="font-medium text-red-300">
+                      <span className="font-medium text-red-400">
                         {stats.errors}
                       </span>
                     </div>
 
                     <div className="h-1.5 overflow-hidden rounded-full bg-[var(--surface-hover)]">
                       <motion.div
-                        initial={{ width: 0 }}
+                        initial={{
+                          width: 0,
+                        }}
                         animate={{
                           width: `${errorPercentage}%`,
                         }}
@@ -343,7 +400,7 @@ export function DashboardPage() {
                             1,
                           ],
                         }}
-                        className="h-full rounded-full bg-red-300/75"
+                        className="h-full rounded-full bg-red-400"
                       />
                     </div>
                   </div>
@@ -351,9 +408,9 @@ export function DashboardPage() {
 
                 <div className="mt-10 border-t border-[var(--border)] pt-5">
                   <p className="text-xs leading-5 text-[var(--text-muted)]">
-                    Your overview updates automatically
-                    as notifications are created,
-                    dismissed or removed.
+                    This overview updates automatically
+                    when notifications are created,
+                    edited, dismissed or removed.
                   </p>
                 </div>
               </div>
